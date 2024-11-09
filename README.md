@@ -2,6 +2,8 @@
 
 A template repository for bootstrapping new AWS projects with Terraform. Includes S3 backend configuration, state locking with DynamoDB, IAM roles, and GitHub Actions CI/CD pipeline.
 
+📦 **Repository**: [github.com/Alexanderdunlop/terraform-aws-bootstrap-template](https://github.com/Alexanderdunlop/terraform-aws-bootstrap-template)
+
 ## Features
 
 - ✨ S3 backend for state storage
@@ -66,6 +68,8 @@ A template repository for bootstrapping new AWS projects with Terraform. Include
 7. Update `terraform.tfvars` file in the root terraform directory:
     ```hcl
     project_name       = "my-project"
+    aws_region         = "us-east-1"
+    environment        = "dev"
     terraform_role_arn = "arn:aws:iam::ACCOUNT_ID:role/my-project-terraform-deployment-role"
     ```
 
