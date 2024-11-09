@@ -34,9 +34,13 @@ A template repository for bootstrapping new AWS projects with Terraform. Include
         - S3 bucket: `my-project-terraform-state`
         - DynamoDB table: `my-project-terraform-locks`
         - IAM role: `my-project-terraform-deployment-role`
+        - Github Actions Access ID
+        - Github Actions Access Key
 3. Note the outputs:
-    - `state_bucket_name`
     - `dynamodb_table_name`
+    - `github_actions_access_key_id`
+    - `github_actions_secret_access_key`
+    - `state_bucket_name`
     - `terraform_role_arn`
 4. Update the backend configuration in `terraform/provider.tf` with the outputs:
     ```hcl
@@ -48,14 +52,22 @@ A template repository for bootstrapping new AWS projects with Terraform. Include
         encrypt        = true
     }
     ```
-5. Update `terraform.tfvars` file in the root terraform directory:
+5. After running `terraform apply` in the bootstrap directory, retrieve the GitHub Actions credentials:
+   ```bash
+   # To see all outputs including sensitive values
+   terraform output -json
+
+   # Or specifically for the secret key
+   terraform output github_actions_secret_access_key
+   ```
+6. After running `terraform apply` in the bootstrap directory, you'll get the GitHub Actions credentials. Use these to set up GitHub Actions secrets:
+   - AWS_ACCESS_KEY_ID (use the `github_actions_access_key_id` output)
+   - AWS_SECRET_ACCESS_KEY (use the `github_actions_secret_access_key` output)
+7. Update `terraform.tfvars` file in the root terraform directory:
     ```hcl
     project_name       = "my-project"
     terraform_role_arn = "arn:aws:iam::ACCOUNT_ID:role/my-project-terraform-deployment-role"
     ```
-6. Set up GitHub Actions secrets::
-    - `AWS_ACCESS_KEY_ID`
-    - `AWS_SECRET_ACCESS_KEY`
 
 ### Adding Infrastructure
 

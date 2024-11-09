@@ -2,6 +2,8 @@ provider "aws" {
   region = var.aws_region
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_s3_bucket" "terraform_state" {
   bucket = local.state_bucket_name
 
@@ -40,7 +42,7 @@ resource "aws_dynamodb_table" "terraform_locks" {
 
 # IAM Role for Terraform
 resource "aws_iam_role" "terraform_role" {
-  name = local.iam_role_name
+  name = local.iam_terraform_role_name
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -49,7 +51,7 @@ resource "aws_iam_role" "terraform_role" {
         Action = "sts:AssumeRole"
         Effect = "Allow"
         Principal = {
-          Service = "github.com"
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
         }
       }
     ]
@@ -57,7 +59,7 @@ resource "aws_iam_role" "terraform_role" {
 }
 
 resource "aws_iam_role_policy" "terraform_policy" {
-  name = local.iam_role_policy_name
+  name = local.iam_terraform_role_policy_name
   role = aws_iam_role.terraform_role.id
 
   policy = jsonencode({
@@ -98,4 +100,28 @@ resource "aws_iam_role_policy" "terraform_policy" {
       }
     ], var.additional_policy_statements)
   })
+}
+
+resource "aws_iam_user" "github_actions" {
+  name = local.iam_github_actions_user_name
+}
+
+resource "aws_iam_user_policy" "github_actions" {
+  name = local.iam_github_actions_policy_name
+  user = aws_iam_user.github_actions.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = "sts:AssumeRole"
+        Resource = aws_iam_role.terraform_role.arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_access_key" "github_actions" {
+  user = aws_iam_user.github_actions.name
 }

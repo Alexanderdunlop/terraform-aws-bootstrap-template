@@ -12,3 +12,14 @@ output "terraform_role_arn" {
   description = "ARN of the Terraform deployment role"
   value       = aws_iam_role.terraform_role.arn
 }
+
+output "github_actions_access_key_id" {
+  description = "Access key ID for GitHub Actions"
+  value       = aws_iam_access_key.github_actions.id
+}
+
+output "github_actions_secret_access_key" {
+  description = "Secret access key for GitHub Actions"
+  value       = aws_iam_access_key.github_actions.secret
+  sensitive   = true
+}
