@@ -48,10 +48,13 @@ resource "aws_iam_role" "terraform_role" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole"
+        Action = [
+          "sts:AssumeRole",
+          "sts:TagSession"
+        ]
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+          AWS = aws_iam_user.github_actions.arn
         }
       }
     ]
@@ -115,7 +118,11 @@ resource "aws_iam_user_policy" "github_actions" {
     Statement = [
       {
         Effect = "Allow"
-        Action = "sts:AssumeRole"
+        Action = [
+          "sts:AssumeRole",
+          "sts:TagSession",
+          "sts:SetSourceIdentity"
+        ]
         Resource = aws_iam_role.terraform_role.arn
       }
     ]
